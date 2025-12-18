@@ -14,5 +14,26 @@ CHIP PC {
     OUT out[16];
     
     PARTS:
-    //// Replace this comment with your code.
+    // 1. 計算 out(t) + 1 的值
+    // 這個 Inc16 元件永遠都在計算，但我們稍後才會決定是否要用這個結果。
+    Inc16(in=currentOut, out=incOut);
+
+    // 2. 處理 inc (遞增) 邏輯
+    // 如果 inc=1，選擇 incOut (out(t)+1)；否則選擇 currentOut (out(t))，也就是保持不變。
+    Mux16(a=currentOut, b=incOut, sel=inc, out=w1);
+
+    // 3. 處理 load (載入) 邏輯
+    // 如果 load=1，選擇外部輸入 in(t)；否則選擇上一步的結果 w1。
+    // 這裡體現了 load 的優先級高於 inc。
+    Mux16(a=w1, b=in, sel=load, out=w2);
+
+    // 4. 處理 reset (重設) 邏輯
+    // 如果 reset=1，選擇 0 (false)；否則選擇上一步的結果 w2。
+    // 這裡體現了 reset 的優先級最高。
+    Mux16(a=w2, b=false, sel=reset, out=nextOut);
+
+    // 5. 將最終決定的值儲存起來，並在下一個時間週期輸出
+    // Register 的 load 永遠為 true，因為前面的 Mux 已經決定好下一個週期的值是什麼了。
+    // Register 的任務就是無條件地在每個時鐘週期將 nextOut 的值存入並輸出。
+    Register(in=nextOut, load=true, out=currentOut, out=out);
 }

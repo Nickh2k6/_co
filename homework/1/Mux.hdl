@@ -10,6 +10,20 @@ CHIP Mux {
     IN a, b, sel;
     OUT out;
 
-    PARTS:
-    //// Replace this comment with your code.
+        PARTS:
+    // notSel = NOT(sel)
+    Nand(a=sel, b=sel, out=notSel);
+
+    // aAnd = a AND notSel
+    Nand(a=a, b=notSel, out=na);
+    Nand(a=na, b=na, out=aAnd);
+
+    // bAnd = b AND sel
+    Nand(a=b, b=sel, out=nb);
+    Nand(a=nb, b=nb, out=bAnd);
+
+    // out = aAnd OR bAnd
+    Nand(a=aAnd, b=aAnd, out=notaAnd);
+    Nand(a=bAnd, b=bAnd, out=notbAnd);
+    Nand(a=notaAnd, b=notbAnd, out=out);
 }

@@ -1,0 +1,125 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/09/Square/Square.jack
+
+/**
+ * Implements a graphic square. A graphic square has a screen location
+ * and a size. It also has methods for drawing, erasing, moving on the 
+ * screen, and changing its size.
+ */
+
+// Square.jack
+
+/**
+ * Implements a graphic square. A graphic square has a screen location
+ * and a size. It also has methods for drawing, erasing, moving on the
+ * screen, and changing its size.
+ */
+class Square {
+
+    // 方塊在螢幕上的位置 (左上角座標)
+    field int x, y;
+
+    // 方塊的邊長
+    field int size;
+
+    /** 建構子：用給定的座標和大小建立一個新方塊 */
+    constructor Square new(int Ax, int Ay, int Asize) {
+        let x = Ax;
+        let y = Ay;
+        let size = Asize;
+
+        do draw(); // 建立時立刻畫出來
+        return this;
+    }
+
+    /** 釋放記憶體 */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** 在螢幕上畫出黑色方塊 */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+        return;
+    }
+
+    /** 在螢幕上擦除方塊 (畫白色) */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+        return;
+    }
+
+    /** 變大：增加邊長 (每次 +2) */
+    method void incSize() {
+        // 檢查是否會超出邊界 (254 是螢幕高度限制)
+        if (((y + size) < 254) & ((x + size) < 510)) {
+            do erase(); // 先擦掉舊的
+            let size = size + 2;
+            do draw();  // 再畫新的
+        }
+        return;
+    }
+
+    /** 變小：減少邊長 (每次 -2) */
+    method void decSize() {
+        if (size > 2) {
+            do erase();
+            let size = size - 2;
+            do draw();
+        }
+        return;
+    }
+
+    /** 向上移動 */
+    method void moveUp() {
+        if (y > 1) { // 確保不超出上邊界
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+            let y = y - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+        }
+        return;
+    }
+
+    /** 向下移動 */
+    method void moveDown() {
+        if ((y + size) < 254) { // 確保不超出下邊界
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+            let y = y + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+        }
+        return;
+    }
+
+    /** 向左移動 */
+    method void moveLeft() {
+        if (x > 1) { // 確保不超出左邊界
+            do Screen.setColor(false);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+            let x = x - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+        }
+        return;
+    }
+
+    /** 向右移動 */
+    method void moveRight() {
+        if ((x + size) < 510) { // 確保不超出右邊界
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+            let x = x + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+        }
+        return;
+    }
+}

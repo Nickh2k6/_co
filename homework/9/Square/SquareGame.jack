@@ -1,0 +1,96 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/09/Square/SquareGame.jack
+
+/**
+ * Implements the Square Dance game.
+ * In this game you can move a black square around the screen and
+ * change its size during the movement.
+ * In the beginning, the square is located at the top-left corner
+ * of the screen. The arrow keys are used to move the square.
+ * The 'z' & 'x' keys are used to decrement and increment the size.
+ * The 'q' key is used to quit the game.
+ */
+
+// SquareGame.jack
+// SquareGame.jack
+
+/**
+ * Implements the Square Dance game.
+ * In this game you can move a black square around the screen and
+ * change its size during the movement.
+ * In the beginning, the square is located at the top-left corner
+ * of the screen. The arrow keys are used to move the square.
+ * The 'z' & 'x' keys are used to decrement and increment the size.
+ * The 'q' key is used to quit the game.
+ */
+class SquareGame {
+
+    // 遊戲中的方塊物件
+    field Square square;
+
+    // 方塊目前的移動方向
+    // 0=無, 1=上, 2=下, 3=左, 4=右
+    field int direction;
+
+    /** 建構子：初始化遊戲 */
+    constructor SquareGame new() {
+        // 在 (0,0) 建立一個邊長為 30 的方塊
+        let square = Square.new(0, 0, 30);
+        let direction = 0;
+
+        return this;
+    }
+
+    /** 釋放記憶體 */
+    method void dispose() {
+        do square.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** 執行遊戲：處理使用者的輸入 */
+    method void run() {
+        var char key;  // 儲存目前按下的按鍵 ASCII 碼
+        var boolean exit;
+
+        let exit = false;
+
+        while (~exit) {
+            // 等待按鍵按下
+            while (key = 0) {
+                let key = Keyboard.keyPressed();
+                do moveSquare();
+            }
+
+            // 判斷按了什麼鍵
+            if (key = 81)  { let exit = true; }     // q key (退出)
+            if (key = 90)  { do square.decSize(); } // z key (變小)
+            if (key = 88)  { do square.incSize(); } // x key (變大)
+            if (key = 131) { let direction = 1; }   // Up arrow
+            if (key = 133) { let direction = 2; }   // Down arrow
+            if (key = 130) { let direction = 3; }   // Left arrow
+            if (key = 132) { let direction = 4; }   // Right arrow
+
+            // 等待按鍵放開
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+                do moveSquare();
+            }
+        }            
+        return;
+    }
+
+    /** 根據目前的 direction 移動方塊 */
+    method void moveSquare() {
+        if (direction = 1) { do square.moveUp(); }
+        if (direction = 2) { do square.moveDown(); }
+        if (direction = 3) { do square.moveLeft(); }
+        if (direction = 4) { do square.moveRight(); }
+
+        // 延遲一下，不然方塊會跑太快 (5 毫秒)
+        do Sys.wait(5);
+        return;
+    }
+}
